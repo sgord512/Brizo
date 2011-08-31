@@ -32,8 +32,21 @@ Oh, actually think about how you can use MonadTransformers to implement the eval
 
 So the evaluation frame is actually a particular Monad in the MT stack. 
 
+Ok, 
+
+I think that I Want to do the following: Have only two types of values, lists and symbols, and symbols.
+
+Then the only predefined things are car, cdr, cons.
+
+Hey, I got it working so that it can read an expression in cons form
+
 ----------------------------------------------------------------------------------------------------
 
 ALSO, what does the name 'Brizo' mean?
 
 Brizo was a Greek goddess, protector of sailors, and others who used the seas. She was responsible for the dreams that sailors would have that would tell them about future conditions, or otherwise provide them prophecies.
+
+
+
+
+

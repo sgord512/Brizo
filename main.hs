@@ -1,7 +1,10 @@
 module Main where
 
+import Brizo.Language
+import Brizo.Parser
 import System.Exit
 import System.IO
+import Text.Parsec
 
 main = do putStrLn "Lem, a toy interpreter by Spencer Gordon."
           repl
@@ -21,38 +24,23 @@ repl :: IO ()
 repl = do input <- prompt
           case processInput input of 
             Action action -> do action
-            Evaluate expression -> do let value = evaluate expression
-                                      putStrLn (show value)
-                                      repl
+            Evaluate expression -> do print expression
+            InputError parseError -> do print parseError
+          repl
             
                  
 
 processInput :: String -> InterpreterInput
 processInput str = case lookup str interpreterActions of 
-  Nothing -> Evaluate $ Result $ Concrete str
+  Nothing -> case parse expression "input" str of                 
+    Left err -> InputError err
+    Right exp -> Evaluate exp
   Just action -> Action action
 
 evaluate :: Expression -> String
-evaluate exp@(Result val@(Concrete _)) = show val
 evaluate exp = error "This expression cannot yet be evaluated"
 
-data InterpreterInput = Action InterpreterAction | Evaluate Expression
-
-type InterpreterAction = IO ()
-type Value = String
-
-data Expression = ApplyFunction Function Expression | Result Concrete
-
-newtype Concrete = Concrete Value
-
-instance Show Concrete where
-  show (Concrete value) = "Concrete: " ++ value
-
-instance Show Expression where
-  show (ApplyFunction f parameters) = (show f ++ "applied with: " ++ show parameters)
-  show (Result v) = "Result " ++ (show v)
-
-newtype Function = MakeFunction String deriving ( Show )
+data InterpreterInput = Action InterpreterAction | Evaluate Expression | InputError ParseError
 
 interpreterActions :: [(String, InterpreterAction)]
 interpreterActions = [ ("quit", exitWith ExitSuccess)
