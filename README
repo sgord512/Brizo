@@ -6,3 +6,34 @@ Who knows?
 
 Maybe a compiler too?
 
+----------------------------------------------------------------------------------------------------
+
+Basically, I want to have just Integers to work with at the moment. So every token must be an integer, or an identifier. 
+
+Actually, let's just have 0, and the function Pred, and Succ, for dealing with it. 
+
+Then the identifiers should be limited to a small set of predefined things: Maybe 
+
+- Sum
+- Minus
+- Negate (defined in terms of Minus)
+- Succ
+- Pred
+
+Ok, I guess for Turing-completeness I need conditionals, and some form of assignment.
+
+I guess I can do "d" for def.
+
+Also, I guess I hadn't really thought about this but the syntax of whatever I'm making is going to be Lisp-ian for the moment. 
+
+The semantics are pretty straightforward at the moment, but I can always add stuff as I find it necessary. What do you think I would need to translate this into a compiler?
+
+Oh, actually think about how you can use MonadTransformers to implement the evaluation context for different things. 
+
+So the evaluation frame is actually a particular Monad in the MT stack. 
+
+----------------------------------------------------------------------------------------------------
+
+ALSO, what does the name 'Brizo' mean?
+
+Brizo was a Greek goddess, protector of sailors, and others who used the seas. She was responsible for the dreams that sailors would have that would tell them about future conditions, or otherwise provide them prophecies.
