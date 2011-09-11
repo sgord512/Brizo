@@ -1,48 +1,18 @@
-I am not sure what this project is exactly.
+Ok, so I'm writing a Scheme interpreter in Haskell. I'm going to try to fully cover the r6rs specification, but that may not be feasible.
 
-Right now, I'm going to try to get some kind of interpreter running, first for arithmetic expressions, and then maybe get a language together.
+Anyway, I'll give it a shot.
 
-Who knows? 
+Right now, I have a lot of the syntax in place, but the semantics are entirely unfinished. I should get to work on that.
 
-Maybe a compiler too?
+I'm thinking of a having a reader monad to model evaluation contexts, but the question is how I actually implement the bindings for a given evaluation context.
 
-----------------------------------------------------------------------------------------------------
+I don't know.
 
-Basically, I want to have just Integers to work with at the moment. So every token must be an integer, or an identifier. 
-
-Actually, let's just have 0, and the function Pred, and Succ, for dealing with it. 
-
-Then the identifiers should be limited to a small set of predefined things: Maybe 
-
-- Sum
-- Minus
-- Negate (defined in terms of Minus)
-- Succ
-- Pred
-
-Ok, I guess for Turing-completeness I need conditionals, and some form of assignment.
-
-I guess I can do "d" for def.
-
-Also, I guess I hadn't really thought about this but the syntax of whatever I'm making is going to be Lisp-ian for the moment. 
-
-The semantics are pretty straightforward at the moment, but I can always add stuff as I find it necessary. What do you think I would need to translate this into a compiler?
-
-Oh, actually think about how you can use MonadTransformers to implement the evaluation context for different things. 
-
-So the evaluation frame is actually a particular Monad in the MT stack. 
-
-Ok, 
-
-I think that I Want to do the following: Have only two types of values, lists and symbols, and symbols.
-
-Then the only predefined things are car, cdr, cons.
-
-Hey, I got it working so that it can read an expression in cons form
+Actually, I can model everything with lambdas, and have a list of formal parameters for each function, which I can then match to the arguments to the function.
 
 ----------------------------------------------------------------------------------------------------
 
-ALSO, what does the name 'Brizo' mean?
+Also, what does the name 'Brizo' mean?
 
 Brizo was a Greek goddess, protector of sailors, and others who used the seas. She was responsible for the dreams that sailors would have that would tell them about future conditions, or otherwise provide them prophecies.
 
