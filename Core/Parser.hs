@@ -1,6 +1,7 @@
-module Brizo.Parser where
+module Core.Parser where
 
-import Brizo.Language
+import Core.Base
+import Core.Language
 import Control.Monad
 import Text.Parsec
 import Text.Parsec.Combinator
@@ -23,8 +24,8 @@ identifierStart = (oneOf validChars) <|> letter <?> "beginning of identifier"
 identifierRest = do option "" (many1 ((oneOf validChars) <|> alphaNum))
 
 
-identifier :: Parser Expression
-identifier = do { firstLetter <- identifierStart
+identifierString :: Parser Expression
+identifierString = do { firstLetter <- identifierStart
                 ; rest <- identifierRest
                 ; return $ Primitive $ SIdentifier (firstLetter:rest)
                 }
@@ -39,7 +40,7 @@ singleExpression = stringLiteral
                    <|> 
                    try booleanLiteral
                    <|>
-                   identifier
+                   identifierString
                    <|> 
                    compoundExpression
                    <?> "literal or expression or identifier"
@@ -54,7 +55,7 @@ stringLiteral = do { char doublequote
                 
 numberLiteral :: Parser Expression
 numberLiteral = do { numString <- many1 digit
-                   ; return $ Primitive $ SInteger $ read numString 
+                   ; return $ Primitive $ SNumber $ read numString 
                    }
                 <?> "number literal"
 
@@ -85,7 +86,8 @@ compoundExpression = do{ char '(' <?> "open paren"
                        ; char ')' <?> "close paren"
                        ; return $ case partsList of 
                          [] -> Primitive SEmptyList
-                         x:xs -> Expression x xs
+                         x:xs -> let (Primitive val) = x 
+                                 in Expression val xs
                        }
                      <?> "expression"
                      

@@ -1,9 +1,12 @@
 module Main where
 
-import Brizo.Language
-import Brizo.Parser
-import Control.Monad.Identity
-import Control.Monad.Trans.Reader
+import Core.Base
+import Core.Builtin
+import Core.Evaluator
+import Core.Language
+import Core.Parser
+import Control.Monad.Error
+import Control.Monad.State
 import Data.Map ( Map )
 import qualified Data.Map as Map
 import System.Exit
@@ -11,7 +14,7 @@ import System.IO
 import Text.Parsec
 
 main = do putStrLn "Brizo, a toy interpreter by Spencer Gordon."
-          repl
+          repl (allBuiltins:[])
           putStrLn "Bye. See you soon..."
           
 
@@ -22,36 +25,20 @@ prompt = do putStr "> "
             input <- getLine
             return input
 
-{--
-type EvaluationContext = ReaderT Frame Identity
+reportResult :: Either EvaluationError Value -> IO ()
+reportResult (Left e) = putStrLn $ "Error: " ++ (show e)
+reportResult (Right v) = print v
 
-data EvaluationError = EmptyInputError
-                     | UndefinedSymbolError Symbol
-                     | SyntaxError String
-                     | ArgumentTypeError Expression
-                     | OtherEvaluationError String
-                       
-instance Show EvaluationError where
-  show EmptyInputError = "No input was provided."
-  show (UndefinedSymbolError s) = "The following symbol was undefinded: " ++ (show s)
-  show (SyntaxError s) = "Malformed syntax: " ++ s
-  show (ArgumentTypeError e) = "Arguments didn't match the function being applied in: " ++ (show e)
-  show (OtherEvaluationError s) = "Evaluation failed: " ++ s
-                       
-class Error EvaluationError where
-  noMsg = OtherEvaluationError "other unspecified error"
-  strMsg = OtherEvaluationError
-                       
-type Evaluation = Either EvaluationError
---}
-
-repl :: IO ()
-repl = do input <- prompt
-          case processInput input of 
-            Action action -> do action
-            Evaluate expression -> do print expression
-            InputError parseError -> do print parseError
-          repl
+repl :: Scope -> IO ()
+repl scope = do input <- prompt
+                case processInput input of 
+                  Action action -> do action
+                                      repl scope
+                  Evaluate expression -> do let (result, modifiedScope) = runState (runErrorT $ evaluate expression) scope
+                                            reportResult result
+                                            repl modifiedScope
+                  InputError parseError -> do print parseError
+                                              repl scope
 
 -- This is going to handle all input before it is evaluated, so that interpreter commands can be intercepted and handled appropriately, should use InputError Monad
 
@@ -79,7 +66,7 @@ data InterpreterInput = Action InterpreterAction | Evaluate Expression | InputEr
 -- Different actions defined as commands for the interpreter
 
 interpreterActions :: [(String, InterpreterAction)]
-interpreterActions = [ ("quit", exitWith ExitSuccess)
+interpreterActions = [ ("quit", exit)
                      , ("help", putStrLn "Printing help values")
                      ]
                      

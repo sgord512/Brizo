@@ -1,0 +1,6 @@
+# Compiled Source #
+###################
+*.hi
+*.o
+r5rs/
+r6rs/
