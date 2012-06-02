@@ -1,17 +1,7 @@
-Ok, so I'm writing a Scheme interpreter in Haskell. I'm going to try to fully cover the r6rs specification, but that may not be feasible.
+This is my work-in-progress implementation in Haskell of R5RS. 
 
-Anyway, I'll give it a shot.
-
-Right now, I have a lot of the syntax in place, but the semantics are entirely unfinished. I should get to work on that.
-
-I'm thinking of a having a reader monad to model evaluation contexts, but the question is how I actually implement the bindings for a given evaluation context.
-
-I don't know.
-
-Actually, I can model everything with lambdas, and have a list of formal parameters for each function, which I can then match to the arguments to the function.
-
+I'll fill this in over time with specifics regarding what I have successfully implemented and what is yet to come. For the time, being, I've basically ipmplemented only addition, define, and the various type predicates. 
 ----------------------------------------------------------------------------------------------------
-
 Also, what does the name 'Brizo' mean?
 
 Brizo was a Greek goddess, protector of sailors, and others who used the seas. She was responsible for the dreams that sailors would have that would tell them about future conditions, or otherwise provide them prophecies.
