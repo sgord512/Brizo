@@ -2,7 +2,6 @@ module Core.Builtin where
 
 import Core.Base
 import Core.Evaluator
-import Core.Language
 import Control.Monad
 import Data.Map ( Map )
 import qualified Data.Map as Map

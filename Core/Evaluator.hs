@@ -1,7 +1,6 @@
 module Core.Evaluator where
 
 import Core.Base
-import Core.Language
 import Control.Monad
 import Control.Monad.Identity
 import Control.Monad.State

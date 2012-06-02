@@ -3,71 +3,60 @@ module Main where
 import Core.Base
 import Core.Builtin
 import Core.Evaluator
-import Core.Language
 import Core.Parser
 import Control.Monad.Error
 import Control.Monad.State
 import Data.Map ( Map )
 import qualified Data.Map as Map
+import System.Console.Haskeline
 import System.Exit
 import System.IO
 import Text.Parsec
 
+main :: IO ()
 main = do putStrLn "Brizo, a toy interpreter by Spencer Gordon."
-          repl (allBuiltins:[])
+          runInputT defaultSettings (repl $ allBuiltins:[])
           putStrLn "Bye. See you soon..."
-          
 
+reportResult :: Either EvaluationError Value -> InputT IO ()
+reportResult (Left e) = outputStrLn $ "Error: " ++ (show e)
+reportResult (Right v) = outputStrLn $ show v
 
-prompt :: IO String
-prompt = do putStr "> "
-            hFlush stdout
-            input <- getLine
-            return input
-
-reportResult :: Either EvaluationError Value -> IO ()
-reportResult (Left e) = putStrLn $ "Error: " ++ (show e)
-reportResult (Right v) = print v
-
-repl :: Scope -> IO ()
-repl scope = do input <- prompt
+repl :: Scope -> InputT IO ()
+repl scope = do input <- getInputLine "> "
                 case processInput input of 
-                  Action action -> do action
-                                      repl scope
+                  Action (shouldQuit, action) -> do action
+                                                    unless shouldQuit (repl scope)
                   Evaluate expression -> do let (result, modifiedScope) = runState (runErrorT $ evaluate expression) scope
                                             reportResult result
                                             repl modifiedScope
-                  InputError parseError -> do print parseError
+                  InputError parseError -> do outputStrLn $ show parseError
                                               repl scope
+                  EmptyInput -> do outputStrLn "No input provided."
+                                   repl scope
 
 -- This is going to handle all input before it is evaluated, so that interpreter commands can be intercepted and handled appropriately, should use InputError Monad
 
-processInput :: String -> InterpreterInput
-processInput str = case lookup str interpreterActions of 
+processInput :: (Maybe String) -> InterpreterInput
+processInput (Just str) = case lookup str interpreterActions of 
   Nothing -> case parse interpreterExpression "input" str of                 
     Left err -> InputError err
     Right exp -> Evaluate exp
   Just action -> Action action
-  
--- Evaluates an expression, very much incomplete, should use EvaluationError Monad 
-{--
-evaluateInContext :: Expression -> Frame -> Evaluation Expression
-evaluateInContext exp bindings = case exp of
-  Nil -> Nil
-  (Cons s e) -> case s of
-    (Sym s) -> maybe (throwError $ UndefinedSymbolError s) (\f -> apply f e) (Map.lookup s bindings)
-    _ -> exp
-  _ -> exp
---}
--- Types of valid input to the interpreter
+processInput Nothing = EmptyInput
 
-data InterpreterInput = Action InterpreterAction | Evaluate Expression | InputError ParseError
+data InterpreterInput = Action InterpreterAction | Evaluate Expression | InputError ParseError | EmptyInput
+type InterpreterAction = (Bool, InputT IO ())
+
 
 -- Different actions defined as commands for the interpreter
 
 interpreterActions :: [(String, InterpreterAction)]
-interpreterActions = [ ("quit", exit)
-                     , ("help", putStrLn "Printing help values")
+interpreterActions = [ ("quit", (True, exit))
+                     , ("help", (False, outputStrLn "Printing help values"))
                      ]
                      
+
+
+exit = do outputStrLn "Bye. See you soon..."
   

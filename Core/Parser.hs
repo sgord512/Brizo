@@ -1,7 +1,6 @@
 module Core.Parser where
 
 import Core.Base
-import Core.Language
 import Control.Monad
 import Text.Parsec
 import Text.Parsec.Combinator
